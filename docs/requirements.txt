@@ -1,0 +1,2 @@
+sphinx>=7,<9
+moodle-docs-theme==0.3.0
