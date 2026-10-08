@@ -51,22 +51,34 @@ final class url_parser {
      */
     public static function parse_reference(string $url): ?video_reference {
         $url = trim($url);
-        if (preg_match('/[\x00-\x20\x7f\\\\@]/', $url)) {
+        if (preg_match('/[\x00-\x20\x7f\\@]/', $url)) {
             return null;
         }
         $parts = parse_url($url);
-        if ($parts === false
-                || ($parts['scheme'] ?? '') !== 'https'
-                || strtolower($parts['host'] ?? '') !== self::HOST
-                || isset($parts['port'])
-                || isset($parts['user'])
-                || isset($parts['query'])
-                || isset($parts['fragment'])) {
+        if ($parts === false || !self::is_allowed_origin($parts)) {
             return null;
         }
         if (!preg_match('~^/app/video/([1-9][0-9]{0,17})/?$~', $parts['path'] ?? '', $m)) {
             return null;
         }
         return new video_reference((int) $m[1]);
+    }
+
+    /**
+     * Whether the parsed URL has the allowed scheme and host and no port, credentials, query or fragment.
+     *
+     * @param array $parts Result of parse_url().
+     * @return bool
+     */
+    private static function is_allowed_origin(array $parts): bool {
+        if (($parts['scheme'] ?? '') !== 'https' || strtolower($parts['host'] ?? '') !== self::HOST) {
+            return false;
+        }
+        foreach (['port', 'user', 'pass', 'query', 'fragment'] as $forbidden) {
+            if (isset($parts[$forbidden])) {
+                return false;
+            }
+        }
+        return true;
     }
 }
