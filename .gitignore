@@ -1,0 +1,9 @@
+docs/_build/
+_site/
+node_modules/
+vendor/
+.idea/
+.vscode/
+*.zip
+.DS_Store
+Thumbs.db
