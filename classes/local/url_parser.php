@@ -51,7 +51,7 @@ final class url_parser {
      */
     public static function parse_reference(string $url): ?video_reference {
         $url = trim($url);
-        if (preg_match('/[\x00-\x20\x7f\\@]/', $url)) {
+        if (preg_match('/[\x00-\x20\x7f\\\\@]/', $url)) {
             return null;
         }
         $parts = parse_url($url);

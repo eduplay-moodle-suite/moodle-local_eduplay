@@ -67,6 +67,7 @@ final class url_parser_test extends \basic_testcase {
             'zero id' => ['https://eduplay.rnp.br/app/video/0'],
             'with port' => ['https://eduplay.rnp.br:8443/app/video/1'],
             'with query' => ['https://eduplay.rnp.br/app/video/1?x=1'],
+            'backslash' => ['https://eduplay.rnp.br\@evil.example/app/video/1'],
             'empty' => [''],
             'space' => ['https://eduplay.rnp.br/app/video/1 x'],
         ];
