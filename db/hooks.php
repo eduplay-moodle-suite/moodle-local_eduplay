@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version metadata for local_eduplay.
+ * Hook callbacks for local_eduplay.
  *
  * @package    local_eduplay
  * @copyright  2026 Kelson da Costa Medeiros <kelsoncm@gmail.com>
@@ -24,8 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_eduplay';
-$plugin->version = 2026100900;
-$plugin->requires = 2024100700; // Moodle 4.5.
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '0.2.0';
+$callbacks = [
+    [
+        'hook' => \core\hook\output\before_http_headers::class,
+        'callback' => [\local_eduplay\hook_callbacks::class, 'before_http_headers'],
+        'priority' => 0,
+    ],
+];
