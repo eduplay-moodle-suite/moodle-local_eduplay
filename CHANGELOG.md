@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 - 2026-10-09
+
+- Maturity raised from ALPHA to BETA.
+- Contract workflow against the third-party mod_interactivevideo (tested v2.2 and latest release).
+- Documented the limitations of the Interactive Video adapter (CSV import, mod_flexbook modal).
+- Validated the H5P editor adapter with Course Presentation and Branching Scenario.
+
 ## 0.4.0 - 2026-10-09
 
 - H5P editor adapter: in the video fields of the H5P content editor (content bank and H5P edit page) the canonical (or embed) EduPlay link is converted to the h5p-url endpoint. Without it the editor accepts the canonical page link as a video file and the player shows "Video format not supported".
