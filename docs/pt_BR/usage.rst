@@ -37,6 +37,16 @@ Buscar vídeos e ler metadados
 
 Só são devolvidos vídeos públicos e ativos que não exigem autenticação. Falhas lançam ``moodle_exception``. As respostas têm cache e a configuração ``Consultar o serviço EduPlay`` desliga tudo.
 
+Adaptador para o editor do H5P
+------------------------------
+
+O editor de conteúdo do H5P (por exemplo *Banco de conteúdo* > *Adicionar* > *Interactive Video*) aceita **qualquer** URL como arquivo de vídeo sem verificá-la. Um link canônico do EduPlay seria salvo como um vídeo que nunca toca ("Video format not supported"). Apenas nas páginas do editor, o ``local_eduplay`` converte o link digitado ou colado no campo de **URL do vídeo**:
+
+1. Em *Add a video* > *Enter video URL*, cole ``https://eduplay.rnp.br/app/video/353479``.
+2. Clique em **Insert**: o editor grava ``https://eduplay.rnp.br/api/v1/videos/353479/h5p-url``, que redireciona para o MP4.
+
+A forma de embed também é convertida; campos de imagem e outros links não são alterados. O editor mostra o tipo do vídeo como "unknown" porque a URL não tem extensão; ele toca normalmente.
+
 Adaptador para o Interactive Video
 ----------------------------------
 

@@ -6,7 +6,7 @@ Documentation / Documentação: <https://eduplay-moodle-suite.github.io/moodle-l
 
 ## English
 
-Core plugin of the [EduPlay Moodle Suite](https://github.com/eduplay-moodle-suite): URL parser, derived URLs (canonical, embed, H5P), metadata cache and security rules for [EduPlay](https://eduplay.rnp.br/) videos. Includes a client for the public EduPlay API (title search and metadata; can be turned off). Also lets authors paste the canonical link in the form of the third-party [Interactive Video](https://github.com/sokunthearithmakara/moodle-mod_interactivevideo) plugin (converted to the `h5p-url` endpoint). Supports Moodle 4.5 LTS and 5.3 LTS.
+Core plugin of the [EduPlay Moodle Suite](https://github.com/eduplay-moodle-suite): URL parser, derived URLs (canonical, embed, H5P), metadata cache and security rules for [EduPlay](https://eduplay.rnp.br/) videos. Includes a client for the public EduPlay API (title search and metadata; can be turned off). Also lets authors paste the canonical link in the H5P content editor and in the form of the third-party [Interactive Video](https://github.com/sokunthearithmakara/moodle-mod_interactivevideo) plugin (converted to the `h5p-url` endpoint). Supports Moodle 4.5 LTS and 5.3 LTS.
 
 > Unofficial project: no affiliation with RNP, EduPlay or Moodle HQ.
 
@@ -14,7 +14,7 @@ Install: copy this repository to `local/eduplay` (`public/local/eduplay` on Mood
 
 ## Português (Brasil)
 
-Plugin núcleo da [EduPlay Moodle Suite](https://github.com/eduplay-moodle-suite): parser de URL, URLs derivadas (canônica, embed, H5P), cache de metadados e regras de segurança para vídeos do [EduPlay](https://eduplay.rnp.br/). Inclui um cliente da API pública do EduPlay (busca por título e metadados; pode ser desligado). Também permite colar o link canônico no formulário do plugin de terceiros [Interactive Video](https://github.com/sokunthearithmakara/moodle-mod_interactivevideo) (convertido para o endpoint `h5p-url`). Suporta Moodle 4.5 LTS e 5.3 LTS.
+Plugin núcleo da [EduPlay Moodle Suite](https://github.com/eduplay-moodle-suite): parser de URL, URLs derivadas (canônica, embed, H5P), cache de metadados e regras de segurança para vídeos do [EduPlay](https://eduplay.rnp.br/). Inclui um cliente da API pública do EduPlay (busca por título e metadados; pode ser desligado). Também permite colar o link canônico no editor de conteúdo do H5P e no formulário do plugin de terceiros [Interactive Video](https://github.com/sokunthearithmakara/moodle-mod_interactivevideo) (convertido para o endpoint `h5p-url`). Suporta Moodle 4.5 LTS e 5.3 LTS.
 
 > Projeto não oficial: sem afiliação com a RNP, o EduPlay ou o Moodle HQ.
 

@@ -24,5 +24,6 @@ Main features
 * **Derived URLs**: canonical, official embed and H5P (``h5p-url``) URLs built from the video id.
 * **Nothing temporary is stored**: only the video id or canonical URL is persisted; temporary CDN URLs never are.
 * **EduPlay API client**: title search (paginated) and video metadata (title, thumbnail) from the public EduPlay API, validated, cached and switchable in the settings.
+* **H5P editor adapter**: the canonical link pasted in a video field of the H5P editor becomes the h5p-url (see *Usage*).
 * **Interactive Video adapter**: lets authors paste the canonical link in the form of the third-party `Interactive Video <https://github.com/sokunthearithmakara/moodle-mod_interactivevideo>`_ plugin (see *Usage*).
 * **Moodle 4.5 LTS and 5.3 LTS**: tested on a CI matrix with PostgreSQL and MariaDB.

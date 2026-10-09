@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 - 2026-10-09
+
+- H5P editor adapter: in the video fields of the H5P content editor (content bank and H5P edit page) the canonical (or embed) EduPlay link is converted to the h5p-url endpoint. Without it the editor accepts the canonical page link as a video file and the player shows "Video format not supported".
+
 ## 0.3.0 - 2026-10-09
 
 - API client for the public (undocumented) EduPlay API: paginated title search and video metadata, with host fixed, short timeouts, no redirects, strict response validation, filter (public, active, no authentication) and cache.
