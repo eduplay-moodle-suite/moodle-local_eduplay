@@ -58,3 +58,10 @@ The third-party `Interactive Video <https://github.com/sokunthearithmakara/moodl
 The embed form (``/app/video/embed/{id}``) is also converted. Other links are left untouched, so YouTube, Vimeo, MP4 files and the rest keep working. Keep the **Video link** source (``videolink``) enabled in the Interactive Video settings.
 
 What the plugin stores is the ``h5p-url``, never the temporary CDN address. Nothing is installed or changed in the third-party plugin, and no request is made by ``local_eduplay``.
+
+Limitations
+~~~~~~~~~~~
+
+* **CSV / bulk import.** The Interactive Video bulk import validates the ``videourl`` column on the server, so the adapter (JavaScript) does not run there. Put the media URL in the file: ``https://eduplay.rnp.br/api/v1/videos/{id}/h5p-url``.
+* **Flexbook.** The video modal inside ``mod_flexbook`` content (field ``#video-url``) is a different screen of a different plugin. It is not covered and has not been tested; paste the ``h5p-url`` there as well.
+* Only the add/edit form of the Interactive Video activity is adapted.

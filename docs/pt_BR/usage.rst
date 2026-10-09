@@ -58,3 +58,10 @@ O plugin de terceiros `Interactive Video <https://github.com/sokunthearithmakara
 A forma de embed (``/app/video/embed/{id}``) também é convertida. Outros links não são alterados, então YouTube, Vimeo, arquivos MP4 e os demais continuam funcionando. Mantenha a fonte **Video link** (``videolink``) habilitada nas configurações do Interactive Video.
 
 O que o plugin grava é a ``h5p-url``, nunca o endereço temporário do CDN. Nada é instalado nem alterado no plugin de terceiros, e o ``local_eduplay`` não faz requisições.
+
+Limitações
+~~~~~~~~~~
+
+* **CSV / importação em lote.** A importação em lote do Interactive Video valida a coluna ``videourl`` no servidor, então o adaptador (JavaScript) não atua ali. Informe no arquivo a URL de mídia: ``https://eduplay.rnp.br/api/v1/videos/{id}/h5p-url``.
+* **Flexbook.** O modal de vídeo dentro do conteúdo do ``mod_flexbook`` (campo ``#video-url``) é outra tela, de outro plugin. Não é coberto nem foi testado; cole a ``h5p-url`` também ali.
+* Apenas o formulário de adicionar/editar da atividade Interactive Video é adaptado.
