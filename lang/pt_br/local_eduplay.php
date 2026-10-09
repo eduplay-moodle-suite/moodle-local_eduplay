@@ -24,9 +24,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['apierror'] = 'Não foi possível consultar o serviço EduPlay ({$a}). Tente novamente mais tarde.';
 $string['cachedef_metadata'] = 'Metadados de vídeos EduPlay';
 $string['cachettl'] = 'Tempo de vida do cache de metadados';
 $string['cachettl_desc'] = 'Por quanto tempo os metadados dos vídeos EduPlay ficam em cache.';
 $string['eduplay:manage'] = 'Gerenciar configurações do EduPlay';
+$string['enableremote'] = 'Consultar o serviço EduPlay';
+$string['enableremote_desc'] = 'Permite que o servidor consulte a API pública do EduPlay para buscar vídeos por título e ler título e miniatura. Desabilitado, este plugin não faz nenhuma requisição ao EduPlay e só funcionam links de vídeo colados.';
 $string['pluginname'] = 'EduPlay';
-$string['privacy:metadata'] = 'O plugin núcleo do EduPlay não armazena dados pessoais.';
+$string['privacy:metadata:eduplay'] = 'Para buscar vídeos, o servidor envia o texto da busca ao serviço EduPlay (eduplay.rnp.br). Nenhum identificador do usuário é enviado.';
+$string['privacy:metadata:eduplay:searchterm'] = 'O texto digitado pelo usuário na busca de vídeos.';

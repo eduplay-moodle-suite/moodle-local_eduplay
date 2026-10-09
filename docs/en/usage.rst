@@ -16,6 +16,27 @@ Usage
 
 ``parse_reference()`` returns ``null`` for anything that is not a canonical EduPlay video URL. Persist the video id or the canonical URL (or, where a third-party plugin requires a media URL, the ``h5p-url``): the ``h5p-url`` endpoint redirects to a temporary CDN URL, which must never be stored.
 
+Searching videos and reading metadata
+-------------------------------------
+
+.. code-block:: php
+
+   use local_eduplay\local\api_client;
+
+   if (api_client::is_enabled()) {
+       $client = new api_client();
+       $result = $client->search('Documentário Eduplay 20 anos', 1); // 10 results per page.
+       foreach ($result->videos as $video) {
+           $video->name;                         // Title.
+           $video->thumbnail;                    // HTTPS thumbnail on eduplay.rnp.br, or null.
+           $video->reference()->canonical_url(); // Canonical URL built from the numeric id.
+       }
+       $result->page; $result->lastpage;         // Paging.
+       $info = $client->get_video(353479);       // Null when not found or not public.
+   }
+
+Only public, active videos that do not require authentication are returned. Failures raise a ``moodle_exception``. Responses are cached and the ``Query the EduPlay service`` setting can turn everything off.
+
 Interactive Video adapter
 -------------------------
 
