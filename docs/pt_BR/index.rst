@@ -23,4 +23,5 @@ Principais recursos
 * **Parser de URL estrito**: aceita somente ``https://eduplay.rnp.br/app/video/{id}`` e rejeita outros hosts, rotas, portas, credenciais e queries.
 * **URLs derivadas**: URLs canônica, de embed oficial e H5P (``h5p-url``) montadas a partir do id do vídeo.
 * **Nada temporário é gravado**: persiste-se apenas o id ou a URL canônica; URLs temporárias do CDN nunca.
+* **Adaptador para Interactive Video**: permite colar o link canônico no formulário do plugin de terceiros `Interactive Video <https://github.com/sokunthearithmakara/moodle-mod_interactivevideo>`_ (veja *Uso*).
 * **Moodle 4.5 LTS e 5.3 LTS**: testado em matriz de CI com PostgreSQL e MariaDB.
