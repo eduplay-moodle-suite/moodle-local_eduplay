@@ -1,0 +1,125 @@
+name: Release
+
+# Publica a release ao enviar uma tag vX.Y.Z (ex.: git tag -a v0.4.1 -m "..." && git push origin v0.4.1).
+# A tag precisa coincidir com $plugin->release do version.php, o CHANGELOG.md precisa ter a seção da versão
+# e o CI precisa estar verde no commit da tag.
+# Execução manual (workflow_dispatch): só valida e monta o ZIP, sem publicar (pré-visualização).
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  checks: read
+
+jobs:
+  package:
+    name: Package and release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Read plugin metadata
+        id: meta
+        run: |
+          component=$(awk -F"'" '/plugin->component/ {print $2; exit}' version.php)
+          release=$(awk -F"'" '/plugin->release/ {print $2; exit}' version.php)
+          maturity=$(grep -o 'MATURITY_[A-Z]*' version.php | head -1)
+          if [ -z "$component" ] || [ -z "$release" ] || [ -z "$maturity" ]; then
+            echo "::error::Could not read component, release and maturity from version.php"
+            exit 1
+          fi
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            tag="${GITHUB_REF_NAME}"
+          else
+            tag="v${release}"
+          fi
+          if [ "${tag}" != "v${release}" ]; then
+            echo "::error::Tag ${tag} does not match \$plugin->release (${release}) in version.php"
+            exit 1
+          fi
+          if [ "${maturity}" = "MATURITY_STABLE" ]; then prerelease=false; else prerelease=true; fi
+          {
+            echo "component=${component}"
+            echo "release=${release}"
+            echo "tag=${tag}"
+            echo "prerelease=${prerelease}"
+            echo "folder=${component#*_}"
+            echo "zip=${component}-${release}.zip"
+          } >> "$GITHUB_OUTPUT"
+          echo "Plugin ${component} ${release} (${maturity}), tag ${tag}"
+
+      - name: Check the changelog and write the release notes
+        env:
+          COMPONENT: ${{ steps.meta.outputs.component }}
+          RELEASE: ${{ steps.meta.outputs.release }}
+          ZIP: ${{ steps.meta.outputs.zip }}
+          FOLDER: ${{ steps.meta.outputs.folder }}
+        run: |
+          mkdir -p dist
+          awk -v ver="$RELEASE" '
+            $0 ~ "^## " ver "( |$)" { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' > dist/changes.md
+          if ! grep -q '[^[:space:]]' dist/changes.md; then
+            echo "::error::CHANGELOG.md has no section (or an empty one) for version ${RELEASE}"
+            exit 1
+          fi
+          {
+            echo "**Alpha/pre-release notice:** unofficial project, no affiliation with RNP, EduPlay or Moodle HQ. Projeto não oficial."
+            echo
+            cat dist/changes.md
+            echo
+            echo "### Instalação / Installation"
+            echo "Download \`${ZIP}\` (root folder \`${FOLDER}\`, as Moodle expects) and install it at *Site administration > Plugins > Install plugins*, then run the Moodle upgrade and purge caches."
+            echo "Baixe \`${ZIP}\`, instale em *Administração do site > Plugins > Instalar plugins*, conclua o upgrade do Moodle e limpe os caches."
+            echo
+            echo "Docs: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/"
+          } > dist/notes.md
+
+      - name: Build the plugin ZIP
+        env:
+          FOLDER: ${{ steps.meta.outputs.folder }}
+          ZIP: ${{ steps.meta.outputs.zip }}
+        run: |
+          git archive --format=zip --prefix="${FOLDER}/" -o "dist/${ZIP}" HEAD
+          unzip -l "dist/${ZIP}" | grep -q " ${FOLDER}/version.php$" || { echo "::error::version.php is not inside ${FOLDER}/ in the ZIP"; exit 1; }
+          ls -l "dist/${ZIP}"
+          echo "Files in the ZIP: $(unzip -Z1 "dist/${ZIP}" | wc -l)"
+
+      - name: Require green CI on this commit
+        if: ${{ github.event_name == 'push' && !env.ACT }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          results=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs" --paginate \
+            --jq '.check_runs[] | select(.name | startswith("Moodle ")) | .conclusion')
+          total=$(echo "$results" | grep -c . || true)
+          ok=$(echo "$results" | grep -c '^success$' || true)
+          echo "CI check runs on ${GITHUB_SHA}: ${ok}/${total} successful"
+          if [ "$total" -eq 0 ] || [ "$ok" -ne "$total" ]; then
+            echo "::error::CI is not green on this commit; fix it before tagging"
+            exit 1
+          fi
+
+      - name: Keep the package as a workflow artifact (manual runs)
+        if: ${{ github.event_name == 'workflow_dispatch' && !env.ACT }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.meta.outputs.zip }}
+          path: dist/
+
+      - name: Publish the release
+        if: ${{ github.event_name == 'push' && !env.ACT }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.component }} ${{ steps.meta.outputs.release }}
+          body_path: dist/notes.md
+          files: dist/${{ steps.meta.outputs.zip }}
+          prerelease: ${{ steps.meta.outputs.prerelease == 'true' }}
