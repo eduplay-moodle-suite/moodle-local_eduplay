@@ -120,9 +120,21 @@ final class api_client {
             return $cached === [] ? null : video_info::from_array($cached);
         }
 
+        $video = $this->fetch_video($id);
+        $this->cache_set($key, $video === null ? [] : $video->to_array());
+        return $video;
+    }
+
+    /**
+     * Request the metadata of a video.
+     *
+     * @param int $id Numeric EduPlay video id.
+     * @return video_info|null Null when the video does not exist, is not public or the answer is for another video.
+     * @throws \moodle_exception When EduPlay cannot be reached or answers something unexpected.
+     */
+    private function fetch_video(int $id): ?video_info {
         [$code, $body] = $this->request(url_parser::BASE . '/api/v1/videos/' . $id);
         if ($code === 404) {
-            $this->cache_set($key, []);
             return null;
         }
         if ($code !== 200) {
@@ -130,11 +142,7 @@ final class api_client {
         }
         $data = json_decode($body, true);
         $video = is_array($data) ? self::video_from_item($data) : null;
-        if ($video !== null && $video->id !== $id) {
-            $video = null;
-        }
-        $this->cache_set($key, $video === null ? [] : $video->to_array());
-        return $video;
+        return $video !== null && $video->id === $id ? $video : null;
     }
 
     /**
@@ -191,10 +199,25 @@ final class api_client {
             }
         }
         $info = isset($data['pageInfo']) && is_array($data['pageInfo']) ? $data['pageInfo'] : [];
-        $page = isset($info['currentPage']) && is_int($info['currentPage']) ? max(1, $info['currentPage']) : $requestedpage;
-        $lastpage = isset($info['lastPage']) && is_int($info['lastPage']) ? max($page, min(1000, $info['lastPage'])) : $page;
-        $total = isset($info['totalResults']) && is_int($info['totalResults']) ? max(0, $info['totalResults']) : count($videos);
+        $page = self::int_field($info, 'currentPage', 1, PHP_INT_MAX, $requestedpage);
+        $lastpage = self::int_field($info, 'lastPage', $page, 1000, $page);
+        $total = self::int_field($info, 'totalResults', 0, PHP_INT_MAX, count($videos));
         return new search_result($videos, $page, $lastpage, $total);
+    }
+
+    /**
+     * Read an integer field of the paging information, limited to a range.
+     *
+     * @param array $info Paging information.
+     * @param string $key Field name.
+     * @param int $min Smallest accepted value.
+     * @param int $max Largest accepted value.
+     * @param int $default Value used when the field is missing or is not an integer.
+     * @return int
+     */
+    private static function int_field(array $info, string $key, int $min, int $max, int $default): int {
+        $value = $info[$key] ?? null;
+        return is_int($value) ? max($min, min($max, $value)) : $default;
     }
 
     /**
@@ -204,26 +227,42 @@ final class api_client {
      * @return video_info|null Null when the item is not a usable public video.
      */
     public static function video_from_item(mixed $item): ?video_info {
-        if (!is_array($item) || strtoupper((string) ($item['contentType'] ?? '')) !== 'VIDEO') {
+        if (!is_array($item) || !self::is_public_video($item)) {
             return null;
         }
-        $id = $item['id'] ?? null;
-        if (is_string($id) && ctype_digit($id)) {
-            $id = (int) $id;
-        }
-        if (!is_int($id) || $id <= 0) {
-            return null;
-        }
-        if (($item['status'] ?? null) !== 'ACTIVE' || ($item['visibility'] ?? null) !== 1
-                || ($item['requiredAuthentication'] ?? true) !== false) {
-            return null;
-        }
+        $id = self::video_id($item['id'] ?? null);
         $name = trim(strip_tags((string) ($item['name'] ?? '')));
-        if ($name === '') {
+        if ($id === null || $name === '') {
             return null;
         }
         $duration = isset($item['duration']) && is_numeric($item['duration']) ? max(0, (int) $item['duration']) : 0;
         return new video_info($id, \core_text::substr($name, 0, 255), $duration, self::safe_thumbnail($item['image'] ?? null));
+    }
+
+    /**
+     * Whether an item is a video that is active, public and does not require authentication.
+     *
+     * @param array $item Decoded JSON item.
+     * @return bool
+     */
+    private static function is_public_video(array $item): bool {
+        return strtoupper((string) ($item['contentType'] ?? '')) === 'VIDEO'
+            && ($item['status'] ?? null) === 'ACTIVE'
+            && ($item['visibility'] ?? null) === 1
+            && ($item['requiredAuthentication'] ?? true) === false;
+    }
+
+    /**
+     * Validate a video id.
+     *
+     * @param mixed $id Integer or string of digits.
+     * @return int|null A positive integer, or null.
+     */
+    private static function video_id(mixed $id): ?int {
+        if (is_string($id) && ctype_digit($id)) {
+            $id = (int) $id;
+        }
+        return is_int($id) && $id > 0 ? $id : null;
     }
 
     /**
@@ -237,11 +276,14 @@ final class api_client {
             return null;
         }
         $parts = parse_url($image);
-        if ($parts === false || ($parts['scheme'] ?? '') !== 'https' || strtolower($parts['host'] ?? '') !== 'eduplay.rnp.br'
-                || isset($parts['user']) || isset($parts['port'])) {
+        if ($parts === false) {
             return null;
         }
-        return $image;
+        $ok = ($parts['scheme'] ?? '') === 'https'
+            && strtolower($parts['host'] ?? '') === 'eduplay.rnp.br'
+            && !isset($parts['user'])
+            && !isset($parts['port']);
+        return $ok ? $image : null;
     }
 
     /**
