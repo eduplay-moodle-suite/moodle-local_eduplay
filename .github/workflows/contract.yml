@@ -1,0 +1,55 @@
+name: Contract (mod_interactivevideo)
+
+# Early warning, not a required check: confirms that the third-party plugin still exposes what the
+# Interactive Video adapter depends on. "tested" is the version validated by hand; "latest" is the
+# newest release tag and catches upstream changes before users do (weekly run).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'amd/src/videourl.js'
+      - 'classes/hook_callbacks.php'
+      - 'tests/contract/**'
+      - '.github/workflows/contract.yml'
+  pull_request:
+    paths:
+      - 'amd/src/videourl.js'
+      - 'classes/hook_callbacks.php'
+      - 'tests/contract/**'
+      - '.github/workflows/contract.yml'
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: Contract ${{ matrix.which }}
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.which == 'latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        which: [tested, latest]
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Fetch mod_interactivevideo
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ matrix.which }}" = "tested" ]; then
+            ref="v2.2"
+          else
+            ref="$(gh release view --repo sokunthearithmakara/moodle-mod_interactivevideo --json tagName --jq .tagName)"
+          fi
+          echo "Using mod_interactivevideo ${ref}"
+          git clone --depth 1 --branch "${ref}" https://github.com/sokunthearithmakara/moodle-mod_interactivevideo.git /tmp/mod_interactivevideo
+
+      - name: Run the contract checks
+        run: bash tests/contract/check_interactivevideo.sh /tmp/mod_interactivevideo .
