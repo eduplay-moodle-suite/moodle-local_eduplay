@@ -37,6 +37,16 @@ Searching videos and reading metadata
 
 Only public, active videos that do not require authentication are returned. Failures raise a ``moodle_exception``. Responses are cached and the ``Query the EduPlay service`` setting can turn everything off.
 
+H5P editor adapter
+------------------
+
+The H5P content editor (for example *Content bank* > *Add* > *Interactive Video*) accepts **any** URL as a video file without checking it. A canonical EduPlay link would be saved as a video that never plays ("Video format not supported"). On the editor pages only, ``local_eduplay`` converts the link typed or pasted in the **video URL** field of a video:
+
+1. In *Add a video* > *Enter video URL*, paste ``https://eduplay.rnp.br/app/video/353479``.
+2. Click **Insert**: the editor stores ``https://eduplay.rnp.br/api/v1/videos/353479/h5p-url``, which redirects to the MP4.
+
+The embed form is converted too, and image fields and other links are not touched. The editor shows the video type as "unknown" because the URL has no file extension; it plays normally.
+
 Interactive Video adapter
 -------------------------
 

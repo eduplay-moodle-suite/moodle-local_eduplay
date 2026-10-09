@@ -53,4 +53,33 @@ final class hook_callbacks_test extends \basic_testcase {
             'empty' => ['', '', false],
         ];
     }
+
+    /**
+     * The H5P editor adapter loads only on the pages that host the H5P content editor.
+     *
+     * @dataProvider editor_pages_provider
+     * @param string $path
+     * @param bool $expected
+     */
+    public function test_applies_to_h5p_editor(string $path, bool $expected): void {
+        $this->assertSame($expected, hook_callbacks::applies_to_h5p_editor($path));
+    }
+
+    /**
+     * Paths of the H5P editor pages and of other pages.
+     *
+     * @return array
+     */
+    public static function editor_pages_provider(): array {
+        return [
+            'content bank editor' => ['/contentbank/edit.php', true],
+            'content bank editor under a subdirectory' => ['/moodle/contentbank/edit.php', true],
+            'h5p edit page' => ['/h5p/edit.php', true],
+            'content bank list' => ['/contentbank/index.php', false],
+            'content view' => ['/contentbank/view.php', false],
+            'course form' => ['/course/modedit.php', false],
+            'similar name' => ['/contentbank/edit.php.bak', false],
+            'empty' => ['', false],
+        ];
+    }
 }
