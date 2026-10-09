@@ -16,20 +16,26 @@
 
 namespace local_eduplay\privacy;
 
+use core_privacy\local\metadata\collection;
+
 /**
- * Privacy provider: the plugin stores no personal data.
+ * Privacy provider: the plugin stores no personal data, but sends search text to the EduPlay service.
  *
  * @package    local_eduplay
  * @copyright  2026 Kelson da Costa Medeiros <kelsoncm@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements \core_privacy\local\metadata\null_provider {
+class provider implements \core_privacy\local\metadata\provider {
     /**
-     * Get the language string identifier with the reason why this plugin stores no data.
+     * Describe the data sent to the external EduPlay service.
      *
-     * @return string
+     * @param collection $collection
+     * @return collection
      */
-    public static function get_reason(): string {
-        return 'privacy:metadata';
+    public static function get_metadata(collection $collection): collection {
+        $collection->add_external_location_link('eduplay', [
+            'searchterm' => 'privacy:metadata:eduplay:searchterm',
+        ], 'privacy:metadata:eduplay');
+        return $collection;
     }
 }

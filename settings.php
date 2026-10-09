@@ -28,6 +28,13 @@ if ($hassiteconfig) {
     $settings = new admin_settingpage('local_eduplay', get_string('pluginname', 'local_eduplay'));
     $ADMIN->add('localplugins', $settings);
 
+    $settings->add(new admin_setting_configcheckbox(
+        'local_eduplay/enableremote',
+        get_string('enableremote', 'local_eduplay'),
+        get_string('enableremote_desc', 'local_eduplay'),
+        1
+    ));
+
     $settings->add(new admin_setting_configduration(
         'local_eduplay/cachettl',
         get_string('cachettl', 'local_eduplay'),

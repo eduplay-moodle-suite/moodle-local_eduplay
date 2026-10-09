@@ -16,6 +16,27 @@ O O ``local_eduplay`` é, em essência, uma biblioteca para outros plugins. O ú
 
 ``parse_reference()`` retorna ``null`` para qualquer coisa que não seja uma URL canônica de vídeo do EduPlay. Persista o id do vídeo ou a URL canônica (ou, quando um plugin de terceiros exige URL de mídia, a ``h5p-url``): o endpoint ``h5p-url`` redireciona para uma URL temporária do CDN, que nunca deve ser gravada.
 
+Buscar vídeos e ler metadados
+-----------------------------
+
+.. code-block:: php
+
+   use local_eduplay\local\api_client;
+
+   if (api_client::is_enabled()) {
+       $client = new api_client();
+       $result = $client->search('Documentário Eduplay 20 anos', 1); // 10 resultados por página.
+       foreach ($result->videos as $video) {
+           $video->name;                         // Título.
+           $video->thumbnail;                    // Miniatura HTTPS em eduplay.rnp.br, ou null.
+           $video->reference()->canonical_url(); // URL canônica montada a partir do id numérico.
+       }
+       $result->page; $result->lastpage;         // Paginação.
+       $info = $client->get_video(353479);       // Null se não existir ou não for público.
+   }
+
+Só são devolvidos vídeos públicos e ativos que não exigem autenticação. Falhas lançam ``moodle_exception``. As respostas têm cache e a configuração ``Consultar o serviço EduPlay`` desliga tudo.
+
 Adaptador para o Interactive Video
 ----------------------------------
 

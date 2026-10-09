@@ -24,9 +24,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['apierror'] = 'The EduPlay service could not be queried ({$a}). Try again later.';
 $string['cachedef_metadata'] = 'EduPlay video metadata';
 $string['cachettl'] = 'Metadata cache lifetime';
 $string['cachettl_desc'] = 'How long EduPlay video metadata is cached.';
 $string['eduplay:manage'] = 'Manage EduPlay settings';
+$string['enableremote'] = 'Query the EduPlay service';
+$string['enableremote_desc'] = 'Allow the server to query the public EduPlay API to search videos by title and to read their title and thumbnail. When disabled, no request is made to EduPlay by this plugin and only pasted video links work.';
 $string['pluginname'] = 'EduPlay';
-$string['privacy:metadata'] = 'The EduPlay core plugin does not store any personal data.';
+$string['privacy:metadata:eduplay'] = 'To search videos, the server sends the search text to the EduPlay service (eduplay.rnp.br). No user identifier is sent.';
+$string['privacy:metadata:eduplay:searchterm'] = 'The text typed by the user in the video search.';
