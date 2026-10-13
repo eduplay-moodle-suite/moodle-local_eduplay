@@ -22,8 +22,8 @@ See it in 30 seconds
 .. raw:: html
 
    <video controls preload="none" style="width:100%;max-width:960px" aria-label="See it in 30 seconds">
-     <source src="https://eduplay-moodle-suite.github.io/media/interactive-video.mp4" type="video/mp4">
-     <a href="https://eduplay-moodle-suite.github.io/media/interactive-video.mp4">MP4</a>
+     <source src="https://eduplay-moodle-suite.github.io/media/interactive-video.en.mp4" type="video/mp4">
+     <a href="https://eduplay-moodle-suite.github.io/media/interactive-video.en.mp4">MP4</a>
    </video>
 
 *Interactive Video and the H5P editor (Moodle interface in English).*
