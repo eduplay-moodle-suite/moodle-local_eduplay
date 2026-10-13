@@ -40,6 +40,17 @@ export const toMediaUrl = (value) => {
 };
 
 /**
+ * Whether an input event comes from the user typing (or deleting) character by character.
+ *
+ * While typing, a partial link such as ".../app/video/3" already matches the pattern; converting it then would
+ * leave the remaining digits after the converted address. Pasting, dropping and autofill are not typing.
+ *
+ * @param {InputEvent|Event} event
+ * @returns {boolean}
+ */
+export const isTyping = (event) => /^(insertText|insertCompositionText|delete)/.test(event.inputType || '');
+
+/**
  * Initialise the adapter.
  */
 export const init = () => {
@@ -47,12 +58,21 @@ export const init = () => {
     if (!input) {
         return;
     }
-    // The capture phase on the target runs before the bubbling (jQuery) handlers of mod_interactivevideo,
-    // so the plugin reads the already converted value.
-    input.addEventListener('input', () => {
+    const convert = (event) => {
+        if (event.type === 'input' && isTyping(event)) {
+            return;
+        }
         const mediaUrl = toMediaUrl(input.value);
         if (mediaUrl !== null) {
             input.value = mediaUrl;
+            if (event.type !== 'input') {
+                // Typed links are converted when the field is left: let the plugin react as if the value had been pasted.
+                input.dispatchEvent(new Event('input', {bubbles: true}));
+            }
         }
-    }, true);
+    };
+    // The capture phase on the target runs before the bubbling (jQuery) handlers of mod_interactivevideo,
+    // so the plugin reads the already converted value.
+    input.addEventListener('input', convert, true);
+    input.addEventListener('change', convert, true);
 };
