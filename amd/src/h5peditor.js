@@ -28,7 +28,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import {toMediaUrl} from 'local_eduplay/videourl';
+import {toMediaUrl, isTyping} from 'local_eduplay/videourl';
 
 const URL_FIELD = 'input.h5p-file-url';
 const VIDEO_FIELD = '.field.video';
@@ -67,7 +67,13 @@ const convertInDialog = (element) => {
  * @param {Document} doc
  */
 const hook = (doc) => {
-    const onInput = (event) => convert(event.target);
+    // Typing is left alone (a partial link would already match); the link is converted on paste, change, Enter or Insert.
+    const onInput = (event) => {
+        if (event.type === 'input' && isTyping(event)) {
+            return;
+        }
+        convert(event.target);
+    };
     doc.addEventListener('input', onInput, true);
     doc.addEventListener('change', onInput, true);
     doc.addEventListener('paste', () => setTimeout(() => {

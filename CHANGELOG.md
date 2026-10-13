@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1 - 2026-10-13
+
+- Fix: typing a link character by character in the H5P editor no longer converts it too early (a partial link such as ".../app/video/3" already matched, leaving the remaining digits after the converted address). Links are converted on paste, change, Enter or Insert.
+
 ## 0.5.0 - 2026-10-09
 
 - Maturity raised from ALPHA to BETA.
