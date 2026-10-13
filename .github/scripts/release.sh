@@ -9,7 +9,7 @@
 #   ci-green [sha]        falha se o CI (checks "Moodle ...") não estiver 100% verde no commit
 #   draft                 cria a release como RASCUNHO com o ZIP e as notas (a tag nasce quando for publicada)
 #   verify-asset <tag>    confere uma release publicada: tag x version.php, ZIP anexado igual ao do código,
-#                         pré-lançamento coerente com a maturidade e CI verde
+#                         pré-lançamento coerente com a maturidade (apenas aviso) e CI verde
 #
 # Variáveis: GITHUB_REPOSITORY (dono/repositório) e GH_TOKEN (ou `gh` autenticado) para os comandos que usam a API.
 set -euo pipefail
@@ -124,7 +124,11 @@ case "${cmd}" in
     echo "${info}" | grep -q "\"name\":\"${zip}\"" || fail "Release ${want} has no asset named ${zip}. It was published without the package; delete it and prepare it again"
     is_pre=$(echo "${info}" | python3 -c 'import sys,json; print(str(json.load(sys.stdin)["isPrerelease"]).lower())')
     if [ "${prerelease}" = "true" ] && [ "${is_pre}" != "true" ]; then
-      fail "${maturity} is not stable but the release is not marked as pre-release"
+      # Publishing a non-stable version as a regular release is a deliberate choice of the maintainers: warn only.
+      echo "::warning::${maturity} is not stable but the release is not marked as pre-release"
+      if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+        echo "Warning: ${maturity} is not stable but ${want} is not marked as pre-release." >> "${GITHUB_STEP_SUMMARY}"
+      fi
     fi
     if [ "${prerelease}" = "false" ] && [ "${is_pre}" = "true" ]; then
       echo "::warning::${maturity} is stable but the release is marked as pre-release"
