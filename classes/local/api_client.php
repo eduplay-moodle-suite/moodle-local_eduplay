@@ -301,13 +301,27 @@ final class api_client {
     }
 
     /**
+     * Lifetime of cached responses, from the site setting (one hour when the setting does not exist yet).
+     *
+     * @return int Seconds; 0 disables the cache.
+     */
+    public static function cache_ttl(): int {
+        $value = get_config('local_eduplay', 'cachettl');
+        return ($value === false || $value === null || $value === '') ? HOURSECS : max(0, (int) $value);
+    }
+
+    /**
      * Read from the cache.
+     *
+     * Each entry carries the time it was stored and is checked against the current lifetime setting, so a change made by
+     * the administrator applies at once, without changing the cache definition. Expired entries and entries from older
+     * versions (without a timestamp) count as a miss.
      *
      * @param string $key
      * @return array|null Array on a hit (empty array means a cached "not available"), null on a miss.
      */
     private function cache_get(string $key): ?array {
-        if (!$this->usecache) {
+        if (!$this->usecache || self::cache_ttl() === 0) {
             return null;
         }
         $value = \cache::make('local_eduplay', 'metadata')->get($key);
@@ -315,7 +329,10 @@ final class api_client {
             return null;
         }
         $decoded = json_decode($value, true);
-        return is_array($decoded) ? $decoded : null;
+        if (!is_array($decoded) || !isset($decoded['stored'], $decoded['data']) || !is_array($decoded['data'])) {
+            return null;
+        }
+        return (int) $decoded['stored'] + self::cache_ttl() > time() ? $decoded['data'] : null;
     }
 
     /**
@@ -325,8 +342,8 @@ final class api_client {
      * @param array $value
      */
     private function cache_set(string $key, array $value): void {
-        if ($this->usecache) {
-            \cache::make('local_eduplay', 'metadata')->set($key, json_encode($value));
+        if ($this->usecache && self::cache_ttl() > 0) {
+            \cache::make('local_eduplay', 'metadata')->set($key, json_encode(['stored' => time(), 'data' => $value]));
         }
     }
 }

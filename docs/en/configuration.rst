@@ -9,7 +9,7 @@ Go to *Site administration* > *Plugins* > *Local plugins* > *EduPlay*.
    * - Setting
      - Description
    * - Metadata cache lifetime
-     - How long EduPlay video metadata stays in the ``local_eduplay/metadata`` application cache (default: 1 hour).
+     - How long EduPlay search results and video metadata stay in the ``local_eduplay/metadata`` application cache (default: 1 hour; ``0`` disables the cache). Changes apply at once, also to entries already cached.
 
 Query the EduPlay service
 -------------------------
@@ -19,11 +19,6 @@ Query the EduPlay service
 When enabled, the server queries the public EduPlay API to search videos by title and to read the title and thumbnail of a video. When disabled, this plugin makes **no request** to EduPlay and only pasted video links work.
 
 The API used (``/api/v1/search`` and ``/api/v1/videos/{id}``) is public but **not documented by RNP**, so it may change without notice. Confirm it with RNP before relying on it in production.
-
-Capabilities
-------------
-
-* ``local/eduplay:manage``: manage plugin settings (managers by default).
 
 Privacy
 -------

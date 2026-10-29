@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.3 - 2026-10-29
+
+- Fix (Marketplace review MMR-428, #34): the *Metadata cache lifetime* setting (`local_eduplay/cachettl`) now applies. Each cache entry stores the time it was written and is checked against the setting, so changes apply at once; `0` disables the cache. The fixed 1-hour `ttl` was removed from the cache definition.
+- Removed the unused `local/eduplay:manage` capability: the settings page is protected by `moodle/site:config`, as for other local plugins.
+
 ## 0.5.2 - 2026-10-13
 
 - Marketplace guidelines audit: removed `lang/pt_br` from the package (only English is shipped; translations go through AMOS).
