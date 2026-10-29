@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_eduplay';
-$plugin->version = 2026101300;
+$plugin->version = 2026102900;
 $plugin->requires = 2024100700; // Moodle 4.5.
 $plugin->maturity = MATURITY_BETA;
-$plugin->release = '0.5.2';
+$plugin->release = '0.5.3';

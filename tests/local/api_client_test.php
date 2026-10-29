@@ -254,6 +254,47 @@ final class api_client_test extends \advanced_testcase {
     }
 
     /**
+     * The cache lifetime comes from the cachettl setting: expired entries and entries without a timestamp are misses,
+     * a change of the setting applies to entries already stored and 0 disables the cache.
+     */
+    public function test_cache_ttl_setting(): void {
+        $this->resetAfterTest();
+        $cache = \cache::make('local_eduplay', 'metadata');
+        $cache->purge();
+        $this->assertSame(HOURSECS, api_client::cache_ttl());
+
+        // An entry stored two hours ago is a miss with the default lifetime of one hour.
+        $cache->set('v_123456', json_encode(['stored' => time() - 2 * HOURSECS, 'data' => []]));
+        $urls = [];
+        $this->assertNull(self::client([[404, '{}']], $urls, true)->get_video(123456));
+        $this->assertCount(1, $urls);
+
+        // The same entry is a hit once the lifetime is raised to three hours.
+        $cache->set('v_123456', json_encode(['stored' => time() - 2 * HOURSECS, 'data' => []]));
+        set_config('cachettl', 3 * HOURSECS, 'local_eduplay');
+        $urls = [];
+        $this->assertNull(self::client([[404, '{}']], $urls, true)->get_video(123456));
+        $this->assertCount(0, $urls);
+
+        // Entries written by older versions (no timestamp) are a miss.
+        $cache->set('v_123456', json_encode([]));
+        $urls = [];
+        $this->assertNull(self::client([[404, '{}']], $urls, true)->get_video(123456));
+        $this->assertCount(1, $urls);
+
+        // Zero disables the cache.
+        $cache->purge();
+        set_config('cachettl', 0, 'local_eduplay');
+        $this->assertSame(0, api_client::cache_ttl());
+        $urls = [];
+        $client = self::client([[404, '{}'], [404, '{}']], $urls, true);
+        $client->get_video(123456);
+        $client->get_video(123456);
+        $this->assertCount(2, $urls);
+        $cache->purge();
+    }
+
+    /**
      * Remote lookups can be switched off in the site settings.
      */
     public function test_is_enabled_setting(): void {

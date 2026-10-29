@@ -31,6 +31,6 @@ $definitions = [
         'simpledata' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 50,
-        'ttl' => 3600,
+        // No 'ttl': each entry stores the time it was written and api_client checks it against local_eduplay/cachettl.
     ],
 ];
